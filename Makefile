@@ -2,8 +2,11 @@ CCC = g++
 CCFLAGS = -c -std=c++11 -ggdb -Wall
 LDFLAGS = -ggdb
 
-parser: parse.tab.cpp scan.cpp
-	$(CCC) $(CCFLAGS) $(LDFLAGS) parse.tab.cpp -o parser
+parser: parse.tab.o
+	$(CCC) $(LDFLAGS) parse.tab.o -o parser
+
+parse.tab.o: parse.tab.cpp scan.cpp all.h
+	$(CCC) $(CCFLAGS) parse.tab.cpp
 
 all.h: List.h error.h Expr.h Stmt.h
 	touch all.h

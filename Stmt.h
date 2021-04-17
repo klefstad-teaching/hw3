@@ -326,6 +326,16 @@ struct ClassStmt
         out << "}\n";
     }
 
+    virtual void check()
+    {
+        compiler_error("Undefined member function: StmtBlock :: check");
+    }
+
+    virtual void gen()
+    {
+        compiler_error("Undefined member function: StmtBlock :: gen");
+    }
+
 };
 
 
