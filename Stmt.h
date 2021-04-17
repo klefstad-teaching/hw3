@@ -23,6 +23,16 @@ struct StmtBlock
         return new StmtBlock();
     }
 
+    virtual void check()
+    {
+        compiler_error("Undefined member function: StmtBlock :: check");
+    }
+
+    virtual void gen()
+    {
+        compiler_error("Undefined member function: StmtBlock :: gen");
+    }
+
 };
 
 inline ostream & operator << (ostream & out, Stmt s)
@@ -324,16 +334,6 @@ struct ClassStmt
         out << "Class " << name << "(" << bases << ")" << "{\n";
         out << body;
         out << "}\n";
-    }
-
-    virtual void check()
-    {
-        compiler_error("Undefined member function: StmtBlock :: check");
-    }
-
-    virtual void gen()
-    {
-        compiler_error("Undefined member function: StmtBlock :: gen");
     }
 
 };

@@ -40,7 +40,7 @@ struct ExprBlock
     virtual Expr gen()
     {
         compiler_error("Undefined member function: ExprBlock :: gen");
-        return nullptr;
+        return 0;
     }
 
 };
