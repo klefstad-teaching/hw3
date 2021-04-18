@@ -53,6 +53,15 @@ void put(ostream &out, StmtList stmts)
     }
 }
 
+void put_params(ostream &out, StmtList stmts)
+{
+    for (StmtList p = stmts; p; p=p->next)
+    {
+        out << p->info;
+        if (p->next) out << ", ";
+    }
+}
+
 
 inline ostream & operator << (ostream & out, StmtList l)
 {
@@ -368,7 +377,9 @@ struct DefStmt
 
     virtual void put(ostream & out)
     {
-        out << "Def " << name << "(" << params << ")";
+        out << "Def " << name << "(";
+        put_params(out, params);
+        out << ")";
         if (ret_type)
         {
             out << " -> " << ret_type;
