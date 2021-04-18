@@ -40,12 +40,12 @@ int HW = 0;
     int in;
 }
 
-%type <ex> init_option call_expr expr disjunction conjunction inversion relation sum term factor primary name atom assign_expr
+%type <ex> expr
 %type <exli> exprs exprs_option
-%type <st> stmt compound_stmt simple_stmt small_stmt assign_stmt call_stmt decl_stmt func_def class_def if_stmt elif_stmts for_stmt while_stmt block param 
-%type <stli> params_option params stmts
-%type <ty> ret_type_option type
-%type <tyli> types base_classes
+%type <st> stmt
+%type <stli> stmts
+%type <ty> type
+%type <tyli> types
 %type <cstr> Ident String strings
 %type <in> Number
 
