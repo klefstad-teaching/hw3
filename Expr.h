@@ -50,16 +50,17 @@ inline ostream & operator << (ostream & out, Expr e)
     if (e)
         e->put(out);
     else
-        out << "NULL EXPR";
+        out << "NULL";
     return out;
 }
 
 inline ostream & operator << (ostream & out, ExprList el)
 {
-    out << "(\n";
     for (ExprList p = el; p; p=p->next)
+    {
         out << p->info;
-    out << ")\n";
+        if (p->next) out << ' ';
+    }
     return out;
 }
 
@@ -102,20 +103,20 @@ struct BinaryExpr
 // ARRAY INDEX Expr
 
 
-struct IndexExpr
+struct IndexedExpr
     : ExprBlock
 {
     Expr list;
     Expr index;
 
-    IndexExpr(Expr lst, Expr ind, Type ty = 0)
+    IndexedExpr(Expr lst, Expr ind, Type ty = 0)
         : ExprBlock(ty), list(lst), index(ind)
     {
     }
 
     static Expr make(Expr lst, Expr ind)
     {
-        return new IndexExpr(lst, ind);
+        return new IndexedExpr(lst, ind);
     }
 
     virtual void put(ostream & out)
@@ -129,19 +130,19 @@ struct IndexExpr
 // MEMBER SELECTION Expr, e.g., obj.member or r.f
 
 
-struct SelectExpr
+struct SelectedExpr
     : ExprBlock
 {
     Expr obj;
     string mem;
-    SelectExpr(Expr ob, string m, Type ty = 0)
+    SelectedExpr(Expr ob, string m, Type ty = 0)
         : ExprBlock(ty), obj(ob), mem(m)
     {
     }
 
     static Expr make(Expr o, string m)
     {
-        return new SelectExpr(o, m);
+        return new SelectedExpr(o, m);
     }
 
     virtual void put(ostream & out)
@@ -155,19 +156,19 @@ struct SelectExpr
 // Identifier (variable or parameter) reference Exprs
 
 
-struct IdExpr
+struct IdentExpr
     : ExprBlock
 {
     string name;
 
-    IdExpr(string nm, Type ty = 0)
+    IdentExpr(string nm, Type ty = 0)
         : ExprBlock(ty), name(nm)
     {
     }
 
     static Expr make(string name)
     {
-        return new IdExpr(name);
+        return new IdentExpr(name);
     }
 
     virtual void put(ostream & out)
@@ -241,7 +242,7 @@ struct BoolConstExpr
 
     virtual void put(ostream & out)
     {
-        out << "bool: " << value;
+        out << (value == 0 ? "False" : "True");
     }
 
 };
@@ -264,30 +265,30 @@ struct IntConstExpr
 
     virtual void put(ostream & out)
     {
-        out << "int: " << value;
+        out << value;
     }
 
 };
 
 
-struct stringConstExpr
+struct StrConstExpr
     : ConstExpr
 {
     string value;
 
-    stringConstExpr(string  v, Type ty = 0)
+    StrConstExpr(string  v, Type ty = 0)
         : ConstExpr(ty), value(v)
     {
     }
 
     static Expr make(string v)
     {
-        return new stringConstExpr(v);
+        return new StrConstExpr(v);
     }
 
     virtual void put(ostream & out)
     {
-        out << "str: '" << value << "'";
+        out << value;
     }
 
 };
@@ -338,17 +339,17 @@ struct NotExpr
 };
 
 
-struct NegateExpr
+struct UnaryMinusExpr
     : UnaryExpr
 {
-    NegateExpr(Expr f, Type ty = 0)
+    UnaryMinusExpr(Expr f, Type ty = 0)
         : UnaryExpr(f, ty)
     {
     }
 
     static Expr make(Expr f)
     {
-        return new NegateExpr(f);
+        return new UnaryMinusExpr(f);
     }
 
     virtual void put(ostream & out) {
@@ -495,6 +496,26 @@ struct DivideExpr
     virtual void put(ostream & out)
     {
         out << '(' << first << ") / (" << second << ')';
+    }
+
+};
+
+struct ModuloExpr
+    : ArithmeticExpr
+{
+    ModuloExpr(Expr f, Expr s, Type ty = 0)
+        : ArithmeticExpr(f, s, ty)
+    {
+    }
+
+    static Expr make(Expr f, Expr s)
+    {
+        return new ModuloExpr(f, s);
+    }
+
+    virtual void put(ostream & out)
+    {
+        out << '(' << first << ") % (" << second << ')';
     }
 
 };
@@ -695,6 +716,88 @@ struct GEExpr
 
 };
 
+struct InExpr
+    : RelationalExpr
+{
+    InExpr(Expr f, Expr s, Type ty = 0)
+        : RelationalExpr(f, s, ty)
+    {
+    }
+
+    static Expr make(Expr f, Expr s)
+    {
+        return new InExpr(f, s);
+    }
+
+    virtual void put(ostream & out)
+    {
+        out << '(' << first << ") in (" << second << ')';
+    }
+
+};
+
+
+struct NotInExpr
+    : RelationalExpr
+{
+    NotInExpr(Expr f, Expr s, Type ty = 0)
+        : RelationalExpr(f, s, ty)
+    {
+    }
+
+    static Expr make(Expr f, Expr s)
+    {
+        return new NotInExpr(f, s);
+    }
+
+    virtual void put(ostream & out)
+    {
+        out << '(' << first << ") not in (" << second << ')';
+    }
+
+};
+
+struct IsExpr
+    : RelationalExpr
+{
+    IsExpr(Expr f, Expr s, Type ty = 0)
+        : RelationalExpr(f, s, ty)
+    {
+    }
+
+    static Expr make(Expr f, Expr s)
+    {
+        return new IsExpr(f, s);
+    }
+
+    virtual void put(ostream & out)
+    {
+        out << '(' << first << ") is (" << second << ')';
+    }
+
+};
+
+struct IsNotExpr
+    : RelationalExpr
+{
+    IsNotExpr(Expr f, Expr s, Type ty = 0)
+        : RelationalExpr(f, s, ty)
+    {
+    }
+
+    static Expr make(Expr f, Expr s)
+    {
+        return new IsNotExpr(f, s);
+    }
+
+    virtual void put(ostream & out)
+    {
+        out << '(' << first << ") is not (" << second << ')';
+    }
+
+};
+
+
 
 
 struct InputExpr
@@ -777,7 +880,7 @@ struct ListExpr
     ExprList elements;
 
     ListExpr(ExprList el, Type ty = 0)
-        : ExprBlock(ty)
+        : ExprBlock(ty), elements(el)
     {
     }
 

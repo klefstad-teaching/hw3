@@ -29,21 +29,24 @@ int HW = 0;
 %}
 
 /*
-
 %union {
+    Type ty;
+    TypeList tyli;
     Expr ex;
     ExprList exli;
     Stmt st;
     StmtList stli;
-    char *cst;
+    char *cstr;
     int in;
 }
 
-%type <ex> 
-%type <exli> 
-%type <st> 
-%type <stli> stmts
-%type <cst> Ident String
+%type <ex> init_option call_expr expr disjunction conjunction inversion relation sum term factor primary name atom assign_expr
+%type <exli> exprs exprs_option
+%type <st> stmt compound_stmt simple_stmt small_stmt assign_stmt call_stmt decl_stmt func_def class_def if_stmt elif_stmts for_stmt while_stmt block param 
+%type <stli> params_option params stmts
+%type <ty> ret_type_option type
+%type <tyli> types base_classes
+%type <cstr> Ident String strings
 %type <in> Number
 
 */
@@ -51,7 +54,7 @@ int HW = 0;
 %%
 
 file: 
-    stmts EndMarker { /* if ( HW == 3 ) cout << $1 << endl; */ }
+    stmts EndMarker { if ( HW == 3 ) cout << $1 << endl; }
 |   EndMarker
 ;
 
@@ -71,13 +74,13 @@ simple_stmt:
 ;
 
 small_stmt:
-    decl
-|   call
-|   assign
+    decl_stmt
+|   assign_stmt
+|   call_stmt
 |   Return expr
-|   Pass 
-|   Break 
-|   Continue 
+|   Pass
+|   Break
+|   Continue
 ;
 
 compound_stmt:
@@ -94,7 +97,7 @@ type:
 |   '[' type ']'
 ;
 
-decl:
+decl_stmt:
     Ident ':' type init_option
 ;
 
@@ -103,20 +106,16 @@ init_option:
 |   EMPTY
 ;
 
-call:
-    name '(' exprs_option ')' 
-;
-
-assign:
-    name '=' expr
+call_stmt:
+    call_expr
 ;
 
 if_stmt:
-    If expr ':' block elif_stmts 
+    If expr ':' block elif_stmts
 ;
 
 elif_stmts:
-    Elif expr ':' block elif_stmts 
+    Elif expr ':' block elif_stmts
 |   Else ':' block
 |   EMPTY
 ;
@@ -158,13 +157,21 @@ class_def:
 ; 
 
 base_classes:
-    '(' Idents ')'
+    '(' types ')'
 |   EMPTY
 ;
 
 block:
-    Newline Indent stmts Dedent 
+    Newline Indent stmts Dedent
 |   simple_stmt
+;
+
+assign_stmt:
+    assign_expr
+;
+
+assign_expr:
+    name '=' expr
 ;
 
 expr:
@@ -172,7 +179,7 @@ expr:
 ;
 
 disjunction:
-    disjunction Or conjunction 
+    disjunction Or conjunction
 |   conjunction
 
 conjunction:
@@ -181,7 +188,7 @@ conjunction:
 ;
 
 inversion:
-    Not inversion 
+    Not inversion
 |   relation
 ;
 
@@ -200,21 +207,21 @@ relation:
 ;
 
 sum:
-    sum '+' term 
-|   sum '-' term 
+    sum '+' term
+|   sum '-' term
 |   term
 ;
 
 term:
-    term '*' factor 
-|   term '/' factor 
-|   term '%' factor 
+    term '*' factor
+|   term '/' factor
+|   term '%' factor
 |   factor
 ;
 
 factor:
-    '+' factor 
-|   '-' factor 
+    '+' factor
+|   '-' factor
 |   primary
 ;
 
@@ -227,15 +234,18 @@ primary:
 name:
     Ident
 |   name '.' Ident
-|   name '[' expr ']' 
-|   call
+|   name '[' expr ']'
+|   call_expr
 ;
 
+call_expr:
+    name '(' exprs_option ')'
+;
 
 atom:
-    True 
-|   False 
-|   None 
+    True
+|   False
+|   None
 |   Number
 |   strings
 |   '[' exprs_option ']'
@@ -243,7 +253,8 @@ atom:
 ;
 
 strings:
-    String strings | String
+    String strings
+|   String
 ;
 
 exprs:
@@ -253,11 +264,12 @@ exprs:
 
 exprs_option:
     exprs
-|   EMPTY ;
+|   EMPTY
+;
 
-Idents:
-    Ident ',' Idents
-|   Ident
+types:
+    type ',' types
+|   type
 ;
 
 EMPTY: ;

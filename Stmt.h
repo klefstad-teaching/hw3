@@ -40,17 +40,17 @@ inline ostream & operator << (ostream & out, Stmt s)
     if (s)
         s->put(out);
     else
-        out << "NULL STMT";
+        out << "NULL";
     return out;
 }
 
 
 void put(ostream &out, StmtList stmts)
 {
-    out << "{\n";
     for (StmtList p = stmts; p; p=p->next)
+    {
         out << p->info;
-    out << "}\n";
+    }
 }
 
 
@@ -59,7 +59,7 @@ inline ostream & operator << (ostream & out, StmtList l)
     if (l)
         put(out, l);
     else
-        out << "NULL STMT LIST";
+        out << "NULL";
     return out;
 }
 
@@ -237,7 +237,7 @@ struct PassStmt
     {
     }
 
-    static Stmt make(Expr o)
+    static Stmt make()
     {
         return new PassStmt();
     }
@@ -245,6 +245,46 @@ struct PassStmt
     virtual void put(ostream & out)
     {
         out << "Pass\n";
+    }
+
+};
+
+struct BreakStmt
+    : StmtBlock
+{
+    BreakStmt()
+        : StmtBlock()
+    {
+    }
+
+    static Stmt make()
+    {
+        return new BreakStmt();
+    }
+
+    virtual void put(ostream & out)
+    {
+        out << "break\n";
+    }
+
+};
+
+struct ContinueStmt
+    : StmtBlock
+{
+    ContinueStmt()
+        : StmtBlock()
+    {
+    }
+
+    static Stmt make()
+    {
+        return new ContinueStmt();
+    }
+
+    virtual void put(ostream & out)
+    {
+        out << "continue\n";
     }
 
 };
@@ -272,13 +312,37 @@ struct VarStmt
 
     virtual void put(ostream & out)
     {
-        out << "Var " << name << ": " << type;
+        out << name << ": " << type;
         if (init)
         {
             out << " = ";
             out << init;
         }
         out << ";\n";
+    }
+
+};
+
+
+struct ParamStmt
+    : StmtBlock
+{
+    string name;
+    Type type;
+
+    ParamStmt(string nm, Type ty)
+        : StmtBlock(), name(nm), type(ty)
+    {
+    }
+
+    static Stmt make(string nm, Type ty)
+    {
+        return new ParamStmt(nm, ty);
+    }
+
+    virtual void put(ostream & out)
+    {
+        out << name << ":" << type;
     }
 
 };
@@ -304,9 +368,13 @@ struct DefStmt
 
     virtual void put(ostream & out)
     {
-        out << "Def " << name << "(" << params << ")" << " -> " << ret_type << ": {\n";
+        out << "Def " << name << "(" << params << ")";
+        if (ret_type)
+        {
+            out << " -> " << ret_type;
+        }
+        out << ":";
         out << body;
-        out << "}\n";
     }
 
 };
@@ -316,24 +384,23 @@ struct ClassStmt
     : StmtBlock
 {
     string name;
-    StmtList bases;
+    TypeList bases;
     Stmt body;
 
-    ClassStmt(string nm, StmtList bc, Stmt bdy)
+    ClassStmt(string nm, TypeList bc, Stmt bdy)
         : StmtBlock(), name(nm), bases(bc), body(bdy)
     {
     }
 
-    static Stmt make(string nm, StmtList bc, Stmt bdy)
+    static Stmt make(string nm, TypeList bc, Stmt bdy)
     {
         return new ClassStmt(nm, bc, bdy);
     }
 
     virtual void put(ostream & out)
     {
-        out << "Class " << name << "(" << bases << ")" << "{\n";
+        out << "Class " << name << "(" << bases << "):" ;
         out << body;
-        out << "}\n";
     }
 
 };

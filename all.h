@@ -8,9 +8,11 @@ using namespace std;
 
 typedef struct SymbolBlock * Symbol;
 typedef struct TypeBlock * Type;
+
 typedef ListPair<Symbol> SymbolPair;
 typedef SymbolPair * SymbolList;
 
+#include "Type.h"
 #include "Expr.h"
 #include "Stmt.h"
 // #include "SymUtils.h"
