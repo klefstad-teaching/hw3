@@ -64,6 +64,15 @@ inline ostream & operator << (ostream & out, ExprList el)
     return out;
 }
 
+void put_args(ostream & out, ExprList args)
+{
+    for (ExprList p = args; p; p=p->next)
+    {
+        out << p->info;
+        if (p->next) out << ", ";
+    }
+}
+
 
 struct UnaryExpr
     : ExprBlock
@@ -199,7 +208,7 @@ struct CallExpr
     virtual void put(ostream & out)
     {
         out << fn << '(';
-        out << args;
+        put_args(out, args);
         out << ')';
     }
 
@@ -821,7 +830,6 @@ struct InputExpr
 };
 
 
-
 struct PrintExpr
     : ExprBlock
 {
@@ -839,7 +847,9 @@ struct PrintExpr
 
     virtual void put(ostream & out)
     {
-        out << "print(" << args << ")";
+        out << "print(";
+        put_args(out, args);
+        out << ")";
     }
 
 };
