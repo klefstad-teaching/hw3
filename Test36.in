@@ -1,0 +1,7 @@
+i:int = 10
+s:int = 0
+while(i > 0):
+    s = s + i
+    i = i - 1
+
+print(s)

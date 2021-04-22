@@ -1,0 +1,15 @@
+Def print_nested_list(arr:[[int]]):{
+i: [int];
+j: int = 0;
+for (i in arr)
+{
+for (j in i)
+{
+print(j);
+}
+
+}
+
+}
+arr1: [[int]] = [[1 2 3] [4 5 6] [7 8 9]];
+print_nested_list(arr1);
